@@ -11,6 +11,8 @@ import time
 if __name__ == "__main__":
     santas_list = generate_santas(participants_list=participants)
 
+    print("Santas list:")
+
     s = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=s)
     driver.maximize_window()
@@ -18,5 +20,5 @@ if __name__ == "__main__":
     time.sleep(2)
     for santa in santas_list:
         send_messages(santa["phone"], santa["message"], driver)
-        print(f"Sent message to {santa['giver']}")
+        print(santa["receiver"], " has received a gift")
     print("done")

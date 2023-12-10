@@ -2,8 +2,10 @@ from typing import List, Dict
 import random
 
 SANTA_MESSAGE = (
-    "Greetings {santa},"
-    "\nYou've been chosen to be {santee}'s Secret Santa this year! Spread the joy and warmth of the holiday season. May your gifting be merry and bright! P.S. {santee} is {age} years young."
+    "Oops! Correction: Ho ho ho {santa},"
+    "\nWe made a little boo-boo, but guess what? You're {santee}'s Secret Santa!"
+    " Let's make their holiday season sparkle with joy and fun."
+    " P.S. {santee} is {age} years young."
 )
 
 
@@ -22,16 +24,10 @@ def generate_text(santa: str, santee: str, age: str) -> str:
     return SANTA_MESSAGE.format(santa=santa, santee=santee, age=age)
 
 
-def generate_santas(participants_list: List[Dict[str, str]]) -> List[List[str]]:
-    """
-    Generates a list of Secret Santa pairings from a list of participants.
+def generate_santas(participants_list: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    if not participants_list:
+        raise ValueError("Participants list is empty.")
 
-    Args:
-    participants_list (List[Dict[str, str]]): A list of participant dictionaries.
-
-    Returns:
-    List[List[str]]: A list of lists, each containing the phone number of the santa and the generated message.
-    """
     max_attempts = 100
     attempt = 0
 
@@ -41,17 +37,17 @@ def generate_santas(participants_list: List[Dict[str, str]]) -> List[List[str]]:
 
         full_response = []
         valid_pairs = True
+        remaining_receivers = shuffled_participants.copy()
 
         for giver in shuffled_participants:
-            receivers = [
-                p for p in shuffled_participants if p["id"] not in giver["dont_pair"] and p["id"] != giver["id"]
-            ]
+            receivers = [p for p in remaining_receivers if p["id"] not in giver["dont_pair"] and p["id"] != giver["id"]]
 
             if not receivers:
                 valid_pairs = False
                 break
 
             receiver = random.choice(receivers)
+            remaining_receivers.remove(receiver)
             full_response.append({
                 "phone": giver["phone"],
                 "message": generate_text(giver["name"], receiver["name"], receiver["age"]),
@@ -60,21 +56,23 @@ def generate_santas(participants_list: List[Dict[str, str]]) -> List[List[str]]:
             })
 
         if valid_pairs:
-            # Testing if each participant has a Santa assigned
-            assigned_santas = [s["giver"] for s in full_response]
-            for participant in shuffled_participants:
-                if participant["name"] not in assigned_santas:
-                    raise ValueError(f"Participant {participant['name']} does not have a Santa assigned.")
+            # Check if every participant has been assigned a Santa
+            participants_names = set(p["name"] for p in participants_list)
+            assigned_santas = set(s["giver"] for s in full_response)
+            if participants_names != assigned_santas:
+                raise ValueError("Not all participants have been assigned a Santa.")
 
-            # Testing if 'dont_pair' constraint is respected
+            # Check if 'dont_pair' constraints are respected
             for santa_info in full_response:
-                giver_name = santa_info["giver"]
-                giver = next(p for p in shuffled_participants if p["name"] == giver_name)
-                receiver = next(p for p in shuffled_participants if p["name"] == santa_info["receiver"])
-
+                giver = next(p for p in participants_list if p["name"] == santa_info["giver"])
+                receiver = next(p for p in participants_list if p["name"] == santa_info["receiver"])
                 if receiver["id"] in giver["dont_pair"]:
-                    raise ValueError(f"Participant {giver['name']} was paired with {receiver['name']} "
-                                     f"but they should not be paired.")
+                    raise ValueError(
+                        (
+                            f"Participant {giver['name']} was paired with {receiver['name']},"
+                            "violating the 'dont_pair' constraint."
+                        )
+                    )
 
             return full_response
 
