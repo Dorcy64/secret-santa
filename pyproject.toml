@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "secret-santa"
+version = "0.1.0"
+description = "Whatsapp selenium secret santa"
+authors = ["Dorcy Shema <hello@dorcis.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "secret-santa"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+selenium = "^4.16.0"
+webdriver-manager = "^4.0.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+isort = "^5.13.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

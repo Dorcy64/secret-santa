@@ -18,7 +18,7 @@ Copy data.py.example to data.py and enter in the participants details.
 
 Modify the participants and couples lists and change the generated_text in main.py if you wish.
 
-    cd secret-santa/
+    cd secret-santa/secret-santa/
     cp data.py.example data.py
     
 Go to whatsapp_selenium and change the executable path to your executable path (where the chromium file is on your computer).
