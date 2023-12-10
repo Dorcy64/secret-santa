@@ -1,5 +1,5 @@
 
-# WhatsApp Secret Santa - README
+# WhatsApp Secret Santa
 
 ## Introduction
 
